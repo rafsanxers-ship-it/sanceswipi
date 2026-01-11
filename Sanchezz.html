@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Finder Indonesia - Temukan WiFi Terdekat</title>
+    <!-- Menggunakan Font Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Menggunakan Font Awesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #10b981;
+            --accent-color: #f59e0b;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* --- HEADER & NAVIGATION --- */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            background: linear-gradient(rgba(37, 99, 235, 0.9), rgba(29, 78, 216, 0.8)), url('https://picsum.photos/seed/wifi/1920/1080');
+            background-size: cover;
+            background-position: center;
+            color: var(--white);
+            text-align: center;
+            padding: 4rem 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+
+        /* --- SEARCH BAR --- */
+        .search-container {
+            background: var(--white);
+            padding: 0.5rem;
+            border-radius: 50px;
+            display: flex;
+            max-width: 700px;
+            margin: 0 auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .search-container input {
+            flex: 1;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            outline: none;
+            border-radius: 50px 0 0 50px;
+        }
+
+        .search-container button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .search-container button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* --- MAIN CONTENT --- */
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        /* --- FILTER SIDEBAR --- */
+        .filters {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .filter-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-group h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+
+        .filter-option input {
+            margin-right: 0.5rem;
+            accent-color: var(--primary-color);
+        }
+
+        /* --- WIFI LIST --- */
+        .wifi-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* --- WIFI CARD --- */
+        .wifi-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .wifi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .card-img {
+            height: 160px;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 1.2rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-free {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-paid {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .wifi-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .wifi-address {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .wifi-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 0.8rem;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+        }
+
+        .speed-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        /* --- MAP SECTION (Simulated) --- */
+        .map-section {
+            grid-column: 1 / -1;
+            margin-top: 2rem;
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            height: 400px;
+        }
+        
+        .map-placeholder {
+            width: 100%;
+            height: 100%;
+            background-image: url('https://picsum.photos/seed/mapindo/1200/400'); 
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .map-pin {
+            position: absolute;
+            color: var(--primary-color);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .map-pin:hover {
+            transform: scale(1.2);
+            color: var(--accent-color);
+        }
+
+        /* --- MODAL --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            width: 100%;
+            max-width: 600px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-detail-row {
+            display: flex;
+            margin-bottom: 0.8rem;
+        }
+
+        .modal-icon {
+            width: 30px;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-top: 2px;
+        }
+
+        .btn-direction {
+            display: block;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: var(--white);
+            text-align: center;
+            padding: 0.8rem;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background-color: var(--text-dark);
+            color: var(--white);
+            text-align: center;
+            padding: 2rem 1.5rem;
+            margin-top: 3rem;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                display: none; /* Could be toggleable in real app */
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                display: none; /* Simple hide for mobile demo */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fa-solid fa-wifi"></i> WiFi Finder Indonesia
+            </div>
+            <div class="nav-links">
+                <a href="#">Beranda</a>
+                <a href="#list-section">Lokasi</a>
+                <a href="#map-section">Peta</a>
+                <a href="#">Tentang</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Temukan WiFi Terdekat Anda</h1>
+        <p>Platform informasi terpusat titik akses WiFi di seluruh Indonesia. Cari lokasi gratis maupun berbayar untuk bekerja dan bersosialisasi.</p>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Cari kota, nama tempat, atau daerah...">
+            <button onclick="handleSearch()">Cari</button>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main id="list-section">
+        <!-- Sidebar Filters -->
+        <aside class="filters">
+            <div class="filter-group">
+                <h3>Jenis Akses</h3>
+                <label class="filter-option">
+                    <input type="checkbox" value="Gratis" checked onchange="filterData()"> Gratis
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox" value="Berbayar" checked onchange="filterData()"> Berbayar
+                </label>
+            </div>
+
+            <div class="filter-group">
+                <h3>Kategori Tempat</h3>
+                <label class="filter-option">
+                    <input type="checkbox" value="Kafe" checked onchange="filterData()"> Kafe
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox" value="Perpustakaan" checked onchange="filterData()"> Perpustakaan
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox" value="Co-working" checked onchange="filterData()"> Co-working Space
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox" value="Bandara" checked onchange="filterData()"> Bandara/Terminal
+                </label>
+            </div>
+
+            <div class="filter-group">
+                <h3>Provinsi</h3>
+                <select id="provinceSelect" onchange="filterData()" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
+                    <option value="all">Semua Provinsi</option>
+                    <option value="DKI Jakarta">DKI Jakarta</option>
+                    <option value="Jawa Barat">Jawa Barat</option>
+                    <option value="Bali">Bali</option>
+                    <option value="DI Yogyakarta">DI Yogyakarta</option>
+                    <option value="Jawa Timur">Jawa Timur</option>
+                </select>
+            </div>
+        </aside>
+
+        <!-- Results List -->
+        <section class="results-area">
+            <div class="wifi-list-header">
+                <h2>Hasil Pencarian</h2>
+                <span id="resultCount" style="color: var(--text-light);">Menampilkan semua lokasi</span>
+            </div>
+            
+            <div class="results-grid" id="wifiGrid">
+                <!-- WiFi cards will be injected here by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Map Section -->
+        <section class="map-section" id="map-section">
+            <h3 style="margin-bottom: 1rem; position: absolute; z-index: 10; background: rgba(255,255,255,0.8); padding: 0.5rem; border-radius: 8px;">Peta Sebaran WiFi (Simulasi)</h3>
+            <div class="map-placeholder" id="mapContainer">
+                <!-- Pins will be injected here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2023 WiFi Finder Indonesia. Dibuat oleh Hidayat S Rafsan Jani (231420069).</p>
+        <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #9ca3af;">Tugas Website Informasi Seluruh WiFi di Indonesia</p>
+    </footer>
+
+    <!-- Modal Detail -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nama Tempat</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImg" src="" alt="Tempat" style="width:100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem;">
+                
+                <div class="modal-detail-row">
+                    <div class="modal-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <div>
+                        <strong>Alamat:</strong>
+                        <p id="modalAddress" style="color: var(--text-light);">Alamat lengkap tempat</p>
+                    </div>
+                </div>
+
+                <div class="modal-detail-row">
+                    <div class="modal-icon"><i class="fa-solid fa-wifi"></i></div>
+                    <div>
+                        <strong>Tipe Koneksi:</strong>
+                        <p id="modalType">Gratis / Berbayar</p>
+                    </div>
+                </div>
+
+                <div class="modal-detail-row">
+                    <div class="modal-icon"><i class="fa-solid fa-gauge-high"></i></div>
+                    <div>
+                        <strong>Kecepatan Estimasi:</strong>
+                        <p id="modalSpeed">0 Mbps</p>
+                    </div>
+                </div>
+
+                <div class="modal-detail-row">
+                    <div class="modal-icon"><i class="fa-solid fa-clock"></i></div>
+                    <div>
+                        <strong>Jam Operasional:</strong>
+                        <p id="modalHours">08:00 - 22:00</p>
+                    </div>
+                </div>
+
+                <a href="#" class="btn-direction" onclick="alert('Membuka Google Maps...')">
+                    <i class="fa-solid fa-diamond-turn-right"></i> Petunjuk Arah
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // --- DATA DUMMY WIFI ---
+        const wifiData = [
+            {
+                id: 1,
+                name: "Kopi Kenangan Senopati",
+                address: "Jl. Senopati No. 45, Kebayoran Baru, Jakarta Selatan",
+                province: "DKI Jakarta",
+                type: "Gratis",
+                category: "Kafe",
+                speed: "50 Mbps",
+                hours: "08:00 - 22:00",
+                img: "https://picsum.photos/seed/cafe1/400/300",
+                x: 20, y: 30 // Koordinat simulasi peta (%)
+            },
+            {
+                id: 2,
+                name: "Perpustakaan Nasional",
+                address: "Jl. Medan Merdeka Selatan No. 11, Jakarta Pusat",
+                province: "DKI Jakarta",
+                type: "Gratis",
+                category: "Perpustakaan",
+                speed: "100 Mbps",
+                hours: "08:00 - 16:00",
+                img: "https://picsum.photos/seed/lib1/400/300",
+                x: 50, y: 40
+            },
+            {
+                id: 3,
+                name: "GoWork Coworking Space",
+                address: "Jl. Jend. Sudirman No. Kav 52-53, SCBD, Jakarta",
+                province: "DKI Jakarta",
+                type: "Berbayar",
+                category: "Co-working",
+                speed: "200 Mbps",
+                hours: "24 Jam",
+                img: "https://picsum.photos/seed/cowork1/400/300",
+                x: 55, y: 35
+            },
+            {
+                id: 4,
+                name: "Starfish Bloom Beach Cafe",
+                address: "Jl. Pantai Batu Bolong, Canggu, Bali",
+                province: "Bali",
+                type: "Berbayar",
+                category: "Kafe",
+                speed: "80 Mbps",
+                hours: "07:00 - 23:00",
+                img: "https://picsum.photos/seed/cafe2/400/300",
+                x: 15, y: 80
+            },
+            {
+                id: 5,
+                name: "Grup Coffee Dago",
+                address: "Jl. Ir. H. Juanda No. 324, Dago, Bandung",
+                province: "Jawa Barat",
+                type: "Gratis",
+                category: "Kafe",
+                speed: "60 Mbps",
+                hours: "09:00 - 22:00",
+                img: "https://picsum.photos/seed/cafe3/400/300",
+                x: 40, y: 50
+            },
+            {
+                id: 6,
+                name: "Tugu Yogyakarta Area",
+                address: "Perempatan Jl. Malioboro & Jl. Jend. Sudirman, Yogyakarta",
+                province: "DI Yogyakarta",
+                type: "Gratis",
+                category: "Ruang Publik",
+                speed: "20 Mbps",
+                hours: "24 Jam",
+                img: "https://picsum.photos/seed/yogya/400/300",
+                x: 60, y: 60
+            },
+            {
+                id: 7,
+                name: "Bandara Juanda WiFi Lounge",
+                address: "Terminal 2 Keberangkatan, Sidoarjo, Jawa Timur",
+                province: "Jawa Timur",
+                type: "Berbayar",
+                category: "Bandara",
+                speed: "150 Mbps",
+                hours: "06:00 - 24:00",
+                img: "https://picsum.photos/seed/airport/400/300",
+                x: 70, y: 65
+            },
+            {
+                id: 8,
+                name: "Common Grounds Jakarta",
+                address: "Pacific Place Level 5, Sudirman, Jakarta",
+                province: "DKI Jakarta",
+                type: "Gratis",
+                category: "Kafe",
+                speed: "45 Mbps",
+                hours: "10:00 - 22:00",
+                img: "https://picsum.photos/seed/cafe4/400/300",
+                x: 52, y: 38
+            }
+        ];
+
+        // --- DOM ELEMENTS ---
+        const wifiGrid = document.getElementById('wifiGrid');
+        const mapContainer = document.getElementById('mapContainer');
+        const searchInput = document.getElementById('searchInput');
+        const resultCount = document.getElementById('resultCount');
+        const modal = document.getElementById('detailModal');
+
+        // --- FUNCTIONS ---
+
+        // Render kartu WiFi
+        function renderCards(data) {
+            wifiGrid.innerHTML = '';
+            
+            if(data.length === 0) {
+                wifiGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-light);">
+                    <i class="fa-solid fa-wifi" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p>Tidak ada lokasi WiFi yang ditemukan sesuai kriteria.</p>
+                </div>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const isFree = item.type === 'Gratis';
+                const badgeClass = isFree ? 'badge-free' : 'badge-paid';
+                
+                const card = document.createElement('div');
+                card.className = 'wifi-card';
+                card.onclick = () => openModal(item.id);
+                
+                card.innerHTML = `
+                    <img src="${item.img}" alt="${item.name}" class="card-img">
+                    <div class="card-body">
+                        <span class="badge ${badgeClass}">${item.type}</span>
+                        <h3 class="wifi-name">${item.name}</h3>
+                        <p class="wifi-address"><i class="fa-solid fa-location-dot"></i> ${item.address}</p>
+                        
+                        <div class="wifi-meta">
+                            <span>${item.category}</span>
+                            <div class="speed-indicator">
+                                <i class="fa-solid fa-gauge-high"></i> ${item.speed}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                wifiGrid.appendChild(card);
+            });
+
+            resultCount.textContent = `Menampilkan ${data.length} lokasi`;
+        }
+
+        // Render Peta (Simulasi)
+        function renderMapPins(data) {
+            mapContainer.innerHTML = ''; // Clear existing pins
+            
+            data.forEach(item => {
+                const pin = document.createElement('i');
+                pin.className = 'fa-solid fa-location-dot map-pin';
+                pin.style.left = item.x + '%';
+                pin.style.top = item.y + '%';
+                pin.title = item.name;
+                pin.onclick = (e) => {
+                    e.stopPropagation();
+                    openModal(item.id);
+                };
+                mapContainer.appendChild(pin);
+            });
+        }
+
+        // Filter Data
+        function filterData() {
+            // Ambil nilai dari filter
+            const checkedTypes = Array.from(document.querySelectorAll('input[value="Gratis"], input[value="Berbayar"]:checked')).map(cb => cb.value);
+            const checkedCategories = Array.from(document.querySelectorAll('input[value="Kafe"], input[value="Perpustakaan"], input[value="Co-working"], input[value="Bandara"]:checked')).map(cb => cb.value);
+            const province = document.getElementById('provinceSelect').value;
+            const keyword = searchInput.value.toLowerCase();
+
+            // Filter logic
+            const filtered = wifiData.filter(item => {
+                const matchType = checkedTypes.includes(item.type);
+                const matchCat = checkedCategories.includes(item.category) || (item.category === 'Ruang Publik' && checkedCategories.includes('Bandara')); // Simplifikasi logika
+                const matchProv = province === 'all' || item.province === province;
+                const matchKeyword = item.name.toLowerCase().includes(keyword) || item.address.toLowerCase().includes(keyword) || item.province.toLowerCase().includes(keyword);
+
+                return matchType && matchCat && matchProv && matchKeyword;
+            });
+
+            renderCards(filtered);
+            renderMapPins(filtered);
+        }
+
+        // Handle Search Button
+        function handleSearch() {
+            filterData();
+        }
+
+        // Search on Enter Key
+        searchInput.addEventListener('keyup', (e) => {
+            filterData();
+        });
+
+        // Open Modal Detail
+        function openModal(id) {
+            const item = wifiData.find(d => d.id === id);
+            if (!item) return;
+
+            document.getElementById('modalTitle').textContent = item.name;
+            document.getElementById('modalImg').src = item.img;
+            document.getElementById('modalAddress').textContent = item.address;
+            document.getElementById('modalType').textContent = item.type + " - " + item.category;
+            document.getElementById('modalSpeed').textContent = item.speed;
+            document.getElementById('modalHours').textContent = item.hours;
+
+            modal.classList.add('active');
+        }
+
+        // Close Modal
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Initial Render
+        renderCards(wifiData);
+        renderMapPins(wifiData);
+
+    </script>
+</body>
+</html>
